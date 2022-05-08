@@ -1,7 +1,10 @@
 package main
 
 import (
+	"log"
 	"net/http"
+
+	"go-apis/get"
 
 	"github.com/gin-gonic/gin"
 )
@@ -9,31 +12,30 @@ import (
 func main() {
 	router := gin.Default()
 
-	router.GET("/", getTest)
-	router.GET("/param/:id", getParam)
-	router.GET("/query", getQuery)
+	router.GET("/", get.GetTest)
+	router.GET("/param/:id", get.GetParam)
+	router.GET("/query", get.GetQuery)
+	router.POST("/post", postTest)
 
 	router.Run()
 }
 
-func getTest(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"name": "forceki",
-		"age":  "21",
-	})
+type TestPost struct {
+	Text  string
+	Title string
 }
 
-func getParam(c *gin.Context) {
-	id := c.Param("id")
+func postTest(c *gin.Context) {
+	var testPost TestPost
+
+	err := c.ShouldBindJSON(&testPost)
+
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"id": id,
-	})
-}
-
-func getQuery(c *gin.Context) {
-	id := c.Query("id")
-	c.JSON(http.StatusOK, gin.H{
-		"id": id,
+		"title": testPost.Title,
+		"text":  testPost.Text,
 	})
 }
